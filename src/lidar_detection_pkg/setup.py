@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'lidar-object-detection'
+package_name = 'lidar_detection_pkg'
 
 setup(
     name=package_name,
@@ -14,7 +14,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='kzzazzk',
-    maintainer_email='zsahraoui20@gmail.com',
+    maintainer_email='kzzazzk@todo.todo',
     description='TODO: Package description',
     license='TODO: License declaration',
     extras_require={
