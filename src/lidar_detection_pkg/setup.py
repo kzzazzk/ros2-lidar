@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools','scikit-learn','numpy'],
     zip_safe=True,
     maintainer='kzzazzk',
     maintainer_email='kzzazzk@todo.todo',
@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'lidar_object_detector = lidar_detection_pkg.lidar_object_detector:main',
         ],
     },
 )
