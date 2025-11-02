@@ -18,9 +18,6 @@ class ImageObstacleDetector(Node):
         self.declare_parameter('confidence_threshold', 0.5)
         self.declare_parameter('min_area', 500)
         
-        self.confidence_threshold = self.get_parameter('confidence_threshold').value
-        self.min_area = self.get_parameter('min_area').value
-        
         self.subscription = self.create_subscription(
             Image, '/my_camera/pylon_ros2_camera_node/image_raw', self.callback, 10)
         
@@ -57,8 +54,8 @@ class ImageObstacleDetector(Node):
                 self.get_logger().error(f"Failed to load YOLO model: {e}")
                 raise
         
-        self.get_logger().info(f"Confidence threshold: {self.confidence_threshold}")
-        self.get_logger().info(f"Minimum area: {self.min_area}")
+        self.get_logger().info(f"Confidence threshold: {self.get_parameter('confidence_threshold').value}")
+        self.get_logger().info(f"Minimum area: {self.get_parameter('min_area').value}")
 
     def callback(self, msg: Image):
         try:
@@ -80,14 +77,14 @@ class ImageObstacleDetector(Node):
             class_id = det['class_id']
             class_name = det['class_name']
             
-            if confidence < self.confidence_threshold:
+            if confidence < self.get_parameter('confidence_threshold').value:
                 continue
             
             w = x2 - x1
             h = y2 - y1
             area = w * h
             
-            if area < self.min_area:
+            if area < self.get_parameter('min_area').value:
                 continue
             
             cx = x1 + w / 2.0
