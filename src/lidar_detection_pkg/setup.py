@@ -11,12 +11,18 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=[
+        'setuptools',
+        'numpy',
+        'opencv-python',
+        'cv_bridge',
+        'ultralytics'
+    ],
     zip_safe=True,
-    maintainer='kzzazzk',
-    maintainer_email='kzzazzk@todo.todo',
+    maintainer='kzzazzk, arturo',
+    maintainer_email='kzzazzk@todo.todo, 69714460+Jarturog@users.noreply.github.com',
     description='TODO: Package description',
-    license='TODO: License declaration',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',
@@ -24,6 +30,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'image_obstacle_detector = lidar_detection_pkg.image_obstacle_detector:main',
         ],
     },
 )
