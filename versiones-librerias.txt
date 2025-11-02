@@ -1,0 +1,11 @@
+# Python 3.10.12
+rclpy==3.3.17
+sensor_msgs==4.9.0
+std_msgs==4.9.0
+geometry_msgs==4.9.0
+lidar_interfaces==0.0.0
+visualization_msgs==4.9.0
+cv_bridge==3.2.1
+opencv-python==4.11.0.86
+torch==2.9.0
+

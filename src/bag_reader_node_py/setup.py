@@ -11,7 +11,13 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=[
+        'setuptools',
+        'numpy',
+        'opencv-python',
+        'cv_bridge',
+        'ultralytics'
+    ],
     zip_safe=True,
     maintainer='arturo',
     maintainer_email='69714460+Jarturog@users.noreply.github.com',
@@ -24,6 +30,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'image_obstacle_detector = bag_reader_node_py.image_obstacle_detector:main',
         ],
     },
 )
