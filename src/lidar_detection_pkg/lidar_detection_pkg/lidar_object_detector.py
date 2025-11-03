@@ -20,7 +20,7 @@ class LidarObstacleDetector(Node):
         self.marker_pub = self.create_publisher(MarkerArray, '/obstacle_markers', 10)
 
         self.declare_parameter('eps', 0.55)
-        self.declare_parameter('min_points', 50)
+        self.declare_parameter('min_points', 45)
         self.get_logger().info('LidarObstacleDetector node started.')
 
     def callback(self, msg: PointCloud2):
@@ -47,7 +47,7 @@ class LidarObstacleDetector(Node):
         # Basic ground filter (adjust threshold to your sensor)
         points = points[points[:, 2] > -2]
 
-        MAX_DISTANCE = 6.5
+        MAX_DISTANCE = 5.5
 
         distances = np.linalg.norm(points[:, :2], axis=1)
         mask_range = distances < MAX_DISTANCE
