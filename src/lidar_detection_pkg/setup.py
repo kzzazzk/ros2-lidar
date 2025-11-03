@@ -16,7 +16,8 @@ setup(
         'numpy',
         'opencv-python',
         'cv_bridge',
-        'ultralytics'
+        'ultralytics',
+        'scikit-learn'
     ],
     zip_safe=True,
     maintainer='kzzazzk, arturo',
@@ -31,6 +32,7 @@ setup(
     entry_points={
         'console_scripts': [
             'image_obstacle_detector = lidar_detection_pkg.image_obstacle_detector:main',
+            'lidar_object_detector = lidar_detection_pkg.lidar_object_detector:main',
         ],
     },
 )
