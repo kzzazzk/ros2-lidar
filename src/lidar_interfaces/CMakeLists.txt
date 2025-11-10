@@ -13,7 +13,8 @@ find_package(geometry_msgs REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Obstacle.msg"
+  "msg/ImageObstacle.msg"
+  "msg/PointCloudObstacle.msg"
   DEPENDENCIES geometry_msgs
 )
 if(BUILD_TESTING)
