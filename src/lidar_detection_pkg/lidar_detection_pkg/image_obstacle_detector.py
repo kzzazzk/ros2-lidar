@@ -4,7 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Header
 from geometry_msgs.msg import Point
-from lidar_interfaces.msg import Obstacle
+from lidar_interfaces.msg import ImageObstacle
 from cv_bridge import CvBridge
 import cv2
 from importlib.metadata import version as pkg_version
@@ -21,7 +21,7 @@ class ImageObstacleDetector(Node):
         self.subscription = self.create_subscription(
             Image, '/my_camera/pylon_ros2_camera_node/image_raw', self.callback, 10)
         
-        self.publisher = self.create_publisher(Obstacle, '/obstacles', 10)
+        self.publisher = self.create_publisher(ImageObstacle, '/obstacles', 10)
         self.image_overlay_pub = self.create_publisher(Image, '/camera/image_with_markers', 10)
         
         self.bridge = CvBridge()
@@ -90,7 +90,7 @@ class ImageObstacleDetector(Node):
             cx = x1 + w / 2.0
             cy = y1 + h / 2.0
             
-            msg_out = Obstacle()
+            msg_out = ImageObstacle()
             msg_out.header = Header()
             msg_out.header.stamp = self.get_clock().now().to_msg()
             msg_out.header.frame_id = frame_id

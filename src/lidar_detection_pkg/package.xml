@@ -8,22 +8,16 @@
   <maintainer email="69714460+Jarturog@users.noreply.github.com">arturo</maintainer>
   <license>Apache-2.0</license>
 
-  <depend>rclpy</depend>
-  <depend>rosbag2_py</depend>
-  <depend>std_msgs</depend>
-  <depend>sensor_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>cv_bridge</depend>
-  <depend>numpy</depend>
-  <depend>opencv-python</depend>
-  <depend>ultralytics</depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rosbag2</exec_depend>
+  <exec_depend>common_interfaces</exec_depend>
+  <exec_depend>vision_opencv</exec_depend> 
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
-  <exec_depend>python3-sklearn</exec_depend>
-  <exec_depend>python3-numpy</exec_depend> ```
+
   <export>
     <build_type>ament_python</build_type>
   </export>

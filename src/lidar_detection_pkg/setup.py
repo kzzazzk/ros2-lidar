@@ -13,6 +13,8 @@ setup(
     ],
     install_requires=[
         'setuptools',
+        'torch',
+        'setuptools',
         'numpy',
         'opencv-python',
         'cv_bridge',

@@ -4,7 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import Point
 from std_msgs.msg import Header
-from lidar_interfaces.msg import Obstacle
+from lidar_interfaces.msg import LidarObstacle
 import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
 from sklearn.cluster import DBSCAN
