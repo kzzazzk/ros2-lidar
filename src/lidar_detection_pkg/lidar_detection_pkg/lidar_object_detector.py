@@ -4,7 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import Point
 from std_msgs.msg import Header
-from lidar_interfaces.msg import LidarObstacle
+from lidar_interfaces.msg import PointCloudObstacle
 import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
 from sklearn.cluster import DBSCAN
@@ -16,7 +16,7 @@ class LidarObstacleDetector(Node):
         self.subscription = self.create_subscription(
             PointCloud2, '/ouster/points', self.callback, 10)
 
-        self.publisher = self.create_publisher(Obstacle, '/obstacles', 10)
+        self.publisher = self.create_publisher(PointCloudObstacle, '/obstacles', 10)
         self.marker_pub = self.create_publisher(MarkerArray, '/obstacle_markers', 10)
 
         self.declare_parameter('eps', 0.55)
@@ -92,7 +92,7 @@ class LidarObstacleDetector(Node):
             dims = max_bounds - min_bounds
 
             # Publish Obstacle message
-            msg_out = Obstacle()
+            msg_out = PointCloudObstacle()
             msg_out.header = Header()
             msg_out.header.stamp = self.get_clock().now().to_msg()
             msg_out.header.frame_id = frame_id
