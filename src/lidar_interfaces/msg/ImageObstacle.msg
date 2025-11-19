@@ -1,8 +1,9 @@
-# msg/Obstacle.msg
-std_msgs/Header header
+# msg/ImageObstacle.msg
 int32 id
+int32 class_id
+string class_name
+float32 confidence
 geometry_msgs/Point centroid
 float32 width
 float32 height
-float32 depth
-int32 num_points
+float32 area

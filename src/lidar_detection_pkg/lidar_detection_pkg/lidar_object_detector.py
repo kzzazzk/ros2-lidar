@@ -15,6 +15,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 from lidar_interfaces.msg import PointCloudObstacle
 
 
+# TODO: Add docstrings to all the methods and the class constructor
 class LidarObstacleDetector(Node):
 
     DEFAULT_EPS = 0.55
@@ -66,7 +67,7 @@ class LidarObstacleDetector(Node):
     def _setup_publishers(self):
         self._obstacle_pub = self.create_publisher(
             PointCloudObstacle, "/obstacles", 10
-        )  # Not used right now. Is it needed?
+        )  # TODO: Change to send a list of `PointCloudObstacle` to the fusion node
         self._marker_pub = self.create_publisher(MarkerArray, "/obstacle_markers", 10)
 
     def _setup_subscriptions(self):
@@ -91,7 +92,7 @@ class LidarObstacleDetector(Node):
                 )
         return SetParametersResult(successful=True)
 
-    def _pointcloud_callback(self, msg: PointCloud2):
+    def _pointcloud_callback(self, msg: PointCloud2) -> None:
         points = self._convert_pointcloud_to_array(msg)
         if points is None or points.shape[0] == 0:
             return
