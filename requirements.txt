@@ -1,5 +1,5 @@
 ultralytics
-rclpy
+rclpy-intellisense
 setuptools
 pip
 colcon-common-extensions 
