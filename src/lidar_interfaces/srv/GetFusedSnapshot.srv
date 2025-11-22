@@ -1,0 +1,12 @@
+# Request: Una ventana de tiempo de interés
+builtin_interfaces/Time start_time
+builtin_interfaces/Time end_time
+---
+# Response: Devuelve true si se encontraron datos
+bool success
+string message
+
+# Los datos sincronizados encontrados en ese intervalo
+sensor_msgs/PointCloud2 pointcloud
+ImageObstacleArray image_obstacles
+PointCloudObstacleArray lidar_obstacles

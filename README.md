@@ -1,6 +1,5 @@
 # ros2-lidar
 ## Instalación de Dependencias
-
 ### Cargar entorno de ROS
 
 Cargar underlay:
@@ -99,3 +98,32 @@ Añadir los siguientes displays (Botón "Add"):
 - PointCloud2: (Opcional) Para ver la nube de puntos cruda del rosbag.
 
 - Topics personalizados: Busca los tópicos de tipo ImageObstacleArray si tienes un plugin de visualización, o inspecciónalos vía terminal con ros2 topic echo.
+
+---------
+# Data Snapshot Service
+
+Nodo de servicio (`data_snapshot_server`) diseñado para sincronizar y recuperar datos históricos recientes de sensores (LiDAR) y detecciones (Imagen y LiDAR) bajo demanda.
+
+## Requisitos Previos
+
+### 1. Interfaces Personalizadas
+Se han creado interfaces adicionales
+* **msg/PointCloudObstacleArray.msg**:
+    * Se ha implementado este mensaje para el nodo detector de LiDAR (`LidarObstacleDetector`) para que el detector agrupe todas las detecciones de un frame en un solo mensaje Array en lugar de publicar obstáculos individuales.
+* **`srv/GetFusedSnapshot.srv`**: Definición del servicio.
+
+## Ejecución
+
+Ejecutar el nodo de servicio:
+```Bash
+ros2 run lidar_detection_pkg data_snapshot_server
+```
+## Testing (Llamada manual)
+1. Inicializar el nodo de servicio (paso anterior)
+2. Iniciar nodos de lidar y/o image detection (ver readme)
+2. Inciar lectura del rosbag (ver readme)
+3. En una nueva terminal:
+```bash
+# Para ver la informacion lograda en el ultimo segundo:
+ros2 service call /get_fused_snapshot lidar_interfaces/srv/GetFusedSnapshot "{start_time: {sec: 1740658100, nanosec: 0}, end_time: {sec: 1740658101, nanosec: 0}}"
+```
