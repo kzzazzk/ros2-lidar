@@ -68,7 +68,7 @@ Nota: Si el tópico del rosbag difiere del esperado (/my_camera/...), usa remapp
 
 ```Bash
 
-ros2 run lidar_detection_pkg lidar_obstacle_detector
+ros2 run lidar_detection_pkg lidar_object_detector
 ```
 ### Terminal 3: Reproducción de Datos (Rosbag)
 
