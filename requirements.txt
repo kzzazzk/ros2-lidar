@@ -1,0 +1,8 @@
+ultralytics
+rclpy-intellisense
+setuptools
+pip
+colcon-common-extensions 
+rosdep
+lark
+numpy<2

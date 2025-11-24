@@ -9,13 +9,19 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+# Necesario para builtin_interfaces/Time usado en el .srv
+find_package(builtin_interfaces REQUIRED)
+find_package(sensor_msgs REQUIRED)
+
+# Definimos los mensajes y el servicio
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/ImageObstacle.msg"
   "msg/PointCloudObstacle.msg"
-  DEPENDENCIES geometry_msgs
+  "msg/ImageObstacle.msg"
+  "msg/ImageObstacleArray.msg"
+  "msg/PointCloudObstacleArray.msg"
+  # SERVICIO
+  "srv/GetFusedSnapshot.srv"
+  DEPENDENCIES geometry_msgs builtin_interfaces sensor_msgs
 )
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
