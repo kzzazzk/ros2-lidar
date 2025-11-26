@@ -431,12 +431,15 @@ class ImageObstacleDetector(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = ImageObstacleDetector()
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
-    node.destroy_node()
-    rclpy.shutdown()
+    finally:
+        if rclpy.ok():
+            node.destroy_node()
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

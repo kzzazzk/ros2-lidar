@@ -12,7 +12,6 @@ from sklearn.cluster import DBSCAN
 from std_msgs.msg import Header
 from visualization_msgs.msg import Marker, MarkerArray
 
-# Importamos tanto el mensaje individual como el Array
 from lidar_interfaces.msg import PointCloudObstacle, PointCloudObstacleArray
 
 
@@ -37,7 +36,7 @@ class LidarObstacleDetector(Node):
         super().__init__("lidar_obstacle_detector")
 
         # Declaration and loading of the parameters
-        self._declare_parameter()
+        self._declare_parameters()
         self._load_parameters()
 
         # Setup of the communications
@@ -49,7 +48,7 @@ class LidarObstacleDetector(Node):
 
         self.get_logger().info("LidarObstacleDetector node started.")
 
-    def _declare_parameter(self):
+    def _declare_parameters(self):
         """Declara los parámetros del nodo con sus valores por defecto."""
         self.declare_parameter("eps", self.DEFAULT_EPS)
         self.declare_parameter("min_points", self.DEFAULT_MIN_POINTS)
@@ -73,7 +72,6 @@ class LidarObstacleDetector(Node):
 
     def _setup_publishers(self):
         """Configura los publishers del nodo."""
-        # ACTUALIZADO: Ahora publicamos el Array, no el obstáculo individual
         self._obstacle_pub = self.create_publisher(
             PointCloudObstacleArray, "/obstacles", 10
         )
@@ -287,7 +285,7 @@ class LidarObstacleDetector(Node):
     ) -> PointCloudObstacle:
         """Instancia un mensaje PointCloudObstacle simple."""
         msg_out = PointCloudObstacle()
-        msg_out.header = header
+        # msg_out.header = header
         msg_out.id = obstacle_id
         msg_out.centroid = Point(
             x=float(centroid[0]), y=float(centroid[1]), z=float(centroid[2])
@@ -305,7 +303,6 @@ class LidarObstacleDetector(Node):
     ) -> Marker:
         """Crea un Marker cúbico para RViz basado en el obstáculo."""
         marker = Marker()
-        marker.header = obstacle_msg.header
         marker.ns = "obstacles"
         marker.id = obstacle_id
         marker.type = Marker.CUBE
@@ -338,7 +335,6 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
     finally:
-        # Bloque finally robusto para evitar errores de contexto
         if rclpy.ok():
             node.destroy_node()
             rclpy.shutdown()
