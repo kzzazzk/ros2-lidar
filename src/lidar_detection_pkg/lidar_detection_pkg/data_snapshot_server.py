@@ -1,21 +1,18 @@
+import threading
+from collections import deque
+
+import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 from rclpy.time import Time
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-from collections import deque
-import threading
-import numpy as np
-
 # Mensajes estándar
 from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import Header
 
 # Mensajes custom
-from lidar_interfaces.msg import (
-    ImageObstacleArray,
-    PointCloudObstacleArray,
-    PointCloudObstacle
-)
+from lidar_interfaces.msg import (ImageObstacleArray, PointCloudObstacle,
+                                  PointCloudObstacleArray)
 from lidar_interfaces.srv import GetFusedSnapshot
 
 
@@ -192,13 +189,15 @@ class DataSnapshotServer(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = DataSnapshotServer()
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            node.destroy_node()
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':
