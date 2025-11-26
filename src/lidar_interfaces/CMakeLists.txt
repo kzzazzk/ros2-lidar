@@ -17,8 +17,10 @@ find_package(sensor_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PointCloudObstacle.msg"
   "msg/ImageObstacle.msg"
+  "msg/FusedObstacle.msg"
   "msg/ImageObstacleArray.msg"
   "msg/PointCloudObstacleArray.msg"
+  "msg/FusedObstacleArray.msg"
   # SERVICIO
   "srv/GetFusedSnapshot.srv"
   DEPENDENCIES geometry_msgs builtin_interfaces sensor_msgs
