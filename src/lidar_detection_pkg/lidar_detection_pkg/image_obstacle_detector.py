@@ -99,10 +99,10 @@ class ImageObstacleDetector(Node):
 
     def _setup_publishers(self) -> None:
         self._obstacle_publisher = self.create_publisher(
-            ImageObstacleArray, "/image/obstacles", 10
+            ImageObstacleArray, "/camera/obstacles", 10
         )
         self._overlay_publisher = self.create_publisher(
-            Image, "/image/obstacles/overlay", 10
+            Image, "/camera/obstacles/overlay", 10
         )
 
     def _setup_subscriptions(self) -> None:
@@ -431,12 +431,15 @@ class ImageObstacleDetector(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = ImageObstacleDetector()
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
-    node.destroy_node()
-    rclpy.shutdown()
+    finally:
+        if rclpy.ok():
+            node.destroy_node()
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

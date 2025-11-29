@@ -1,21 +1,16 @@
+import threading
+from collections import deque
+
+import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 from rclpy.time import Time
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-from collections import deque
-import threading
-import numpy as np
-
-# Mensajes estándar
 from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import Header
 
-# Mensajes custom
-from lidar_interfaces.msg import (
-    ImageObstacleArray,
-    PointCloudObstacleArray,
-    PointCloudObstacle
-)
+from lidar_interfaces.msg import (ImageObstacleArray, PointCloudObstacle,
+                                  PointCloudObstacleArray)
 from lidar_interfaces.srv import GetFusedSnapshot
 
 
@@ -26,7 +21,7 @@ class DataSnapshotServer(Node):
     """
 
     def __init__(self):
-        super().__init__('data_snapshot_server')
+        super().__init__("data_snapshot_server")
 
         # --- Configuración ---
         # Tamaño del buffer en segundos (aprox)
@@ -42,42 +37,31 @@ class DataSnapshotServer(Node):
         sensor_qos = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
             history=HistoryPolicy.KEEP_LAST,
-            depth=10
+            depth=10,
         )
 
         reliable_qos = QoSProfile(
             reliability=ReliabilityPolicy.RELIABLE,
             history=HistoryPolicy.KEEP_LAST,
-            depth=10
+            depth=10,
         )
 
         # --- Suscripciones ---
         self.create_subscription(
-            PointCloud2,
-            '/ouster/points',
-            self._callback_cloud,
-            sensor_qos
+            PointCloud2, "/ouster/points", self._callback_cloud, sensor_qos
         )
 
         self.create_subscription(
-            PointCloudObstacleArray,  # ¡Importante! Debe ser un Array
-            '/obstacles',
-            self._callback_lidar,
-            reliable_qos
+            PointCloudObstacleArray, "/lidar/obstacles", self._callback_lidar, reliable_qos
         )
 
         self.create_subscription(
-            ImageObstacleArray,
-            '/image_obstacles',
-            self._callback_image,
-            reliable_qos
+            ImageObstacleArray, "/camera/obstacles", self._callback_image, reliable_qos
         )
 
         # --- Servicio ---
         self.srv = self.create_service(
-            GetFusedSnapshot,
-            'get_fused_snapshot',
-            self._handle_snapshot_request
+            GetFusedSnapshot, "get_fused_snapshot", self._handle_snapshot_request
         )
 
         self.get_logger().info("Data Snapshot Server iniciado. Esperando datos...")
@@ -85,16 +69,21 @@ class DataSnapshotServer(Node):
     # --- Callbacks de Suscripción ---
 
     def _callback_cloud(self, msg: PointCloud2):
-        self.get_logger().debug(f"CLOUD: Recibido timestamp: {msg.header.stamp.sec}.{msg.header.stamp.nanosec}")
+        self.get_logger().debug(
+            f"CLOUD: Recibido timestamp: {msg.header.stamp.sec}.{msg.header.stamp.nanosec}"
+        )
         self._add_to_buffer(self._cloud_buffer, msg)
 
     def _callback_lidar(self, msg: PointCloudObstacleArray):
-        self.get_logger().debug(f"LIDAR: Recibido timestamp: {msg.header.stamp.sec}.{msg.header.stamp.nanosec} con {len(msg.obstacles)} obstáculos.")
+        self.get_logger().debug(
+            f"LIDAR: Recibido timestamp: {msg.header.stamp.sec}.{msg.header.stamp.nanosec} con {len(msg.obstacles)} obstáculos."
+        )
         self._add_to_buffer(self._lidar_buffer, msg)
 
     def _callback_image(self, msg: ImageObstacleArray):
         self.get_logger().debug(
-            f"IMAGEN: Recibido timestamp: {msg.header.stamp.sec}.{msg.header.stamp.nanosec} con {len(msg.obstacles)} obstáculos.")
+            f"IMAGEN: Recibido timestamp: {msg.header.stamp.sec}.{msg.header.stamp.nanosec} con {len(msg.obstacles)} obstáculos."
+        )
         self._add_to_buffer(self._image_buffer, msg)
 
     def _add_to_buffer(self, buffer: deque, msg):
@@ -122,7 +111,9 @@ class DataSnapshotServer(Node):
             # 3. Log de Diagnóstico
             if len(buffer) % 10 == 0 or len(buffer) < 5 and len(buffer) > 0:
                 self.get_logger().info(
-                    f"BUFFER {msg.__class__.__name__}: Tamaño actual {len(buffer)}. Último tiempo: {msg_time_ns // 10 ** 9}")
+                    f"BUFFER {msg.__class__.__name__}: Tamaño actual {len(buffer)}. Último tiempo: {msg_time_ns // 10 ** 9}"
+                )
+
     # --- Lógica del Servicio ---
 
     def _handle_snapshot_request(self, request, response):
@@ -139,9 +130,15 @@ class DataSnapshotServer(Node):
         target_time = (start_ns + end_ns) / 2
 
         with self._buffer_lock:
-            cloud_match = self._find_closest_msg(self._cloud_buffer, target_time, start_ns, end_ns)
-            lidar_match = self._find_closest_msg(self._lidar_buffer, target_time, start_ns, end_ns)
-            image_match = self._find_closest_msg(self._image_buffer, target_time, start_ns, end_ns)
+            cloud_match = self._find_closest_msg(
+                self._cloud_buffer, target_time, start_ns, end_ns
+            )
+            lidar_match = self._find_closest_msg(
+                self._lidar_buffer, target_time, start_ns, end_ns
+            )
+            image_match = self._find_closest_msg(
+                self._image_buffer, target_time, start_ns, end_ns
+            )
 
         if cloud_match is None:
             response.success = False
@@ -158,7 +155,9 @@ class DataSnapshotServer(Node):
         else:
             response.lidar_obstacles = PointCloudObstacleArray()  # Vacío
             response.lidar_obstacles.header.stamp = response.pointcloud.header.stamp
-            response.lidar_obstacles.header.frame_id = response.pointcloud.header.frame_id
+            response.lidar_obstacles.header.frame_id = (
+                response.pointcloud.header.frame_id
+            )
 
         if image_match:
             response.image_obstacles = image_match
@@ -174,7 +173,7 @@ class DataSnapshotServer(Node):
         Complejidad O(N), pero N es pequeño (buffer limitado).
         """
         closest_msg = None
-        min_diff = float('inf')
+        min_diff = float("inf")
 
         for timestamp, msg in buffer:
             # Filtro estricto de ventana
@@ -192,14 +191,16 @@ class DataSnapshotServer(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = DataSnapshotServer()
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            node.destroy_node()
+            rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

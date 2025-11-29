@@ -1,0 +1,13 @@
+# msg/FusedObstacle.msg
+int32 id
+geometry_msgs/Point centroid
+float32 width
+float32 height
+float32 depth
+int32 num_points
+bool has_lidar_data
+bool has_image_data
+int32 class_id
+string class_name
+float32 confidence
+float32 association_distance

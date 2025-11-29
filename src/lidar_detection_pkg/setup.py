@@ -35,6 +35,7 @@ setup(
         'console_scripts': [
             'image_obstacle_detector = lidar_detection_pkg.image_obstacle_detector:main',
             'lidar_object_detector = lidar_detection_pkg.lidar_object_detector:main',
+            'fusion_data = lidar_detection_pkg.fusion_data:main',
             'data_snapshot_server = lidar_detection_pkg.data_snapshot_server:main',
         ],
     },
