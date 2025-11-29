@@ -72,10 +72,12 @@ class LidarObstacleDetector(Node):
 
     def _setup_publishers(self):
         """Configura los publishers del nodo."""
-        self._obstacle_pub = self.create_publisher(
-            PointCloudObstacleArray, "/obstacles", 10
+        self._obstacle_publisher = self.create_publisher(
+            PointCloudObstacleArray, "/lidar/obstacles", 10
         )
-        self._marker_pub = self.create_publisher(MarkerArray, "/obstacle_markers", 10)
+        self._overlay_publisher = self.create_publisher(
+            MarkerArray, "/lidar/obstacles/overlay", 10
+        )
 
     def _setup_subscriptions(self):
         """Configura las suscripciones del nodo."""
@@ -154,9 +156,7 @@ class LidarObstacleDetector(Node):
             return points
 
         except (ValueError, RuntimeError) as e:
-            self.get_logger().warn(
-                f"Efficient conversion failed: {e}. Using fallback."
-            )
+            self.get_logger().warn(f"Efficient conversion failed: {e}. Using fallback.")
             # Fallback
             try:
                 points_iter = pc2.read_points(
@@ -205,13 +205,13 @@ class LidarObstacleDetector(Node):
         # Empty Obstacle Array
         obs_msg = PointCloudObstacleArray()
         obs_msg.header = header
-        self._obstacle_pub.publish(obs_msg)
+        self._obstacle_publisher.publish(obs_msg)
 
         # Empty Marker Array
-        self._marker_pub.publish(MarkerArray())
+        self._overlay_publisher.publish(MarkerArray())
 
     def _publish_obstacles_and_markers(
-            self, points: np.ndarray, labels: np.ndarray, frame_id: str, timestamp: Time
+        self, points: np.ndarray, labels: np.ndarray, frame_id: str, timestamp: Time
     ) -> None:
         """
         Genera los mensajes de obstáculos y marcadores y los publica.
@@ -225,6 +225,7 @@ class LidarObstacleDetector(Node):
 
         header = Header()
         header.frame_id = frame_id
+        self._logger.info(f"Frame ID for publishing: {frame_id}")
         header.stamp = timestamp
 
         # Si no hay clusters, publicamos vacio
@@ -245,7 +246,7 @@ class LidarObstacleDetector(Node):
             obstacle_list.append(obstacle_msg)
 
             # 2. Crear marcador visual
-            marker = self._create_visualization_marker(obstacle_msg, obstacle_id)
+            marker = self._create_visualization_marker(obstacle_msg, obstacle_id, header)
             marker_array.markers.append(marker)
 
         # --- PUBLICACIÓN ---
@@ -254,10 +255,10 @@ class LidarObstacleDetector(Node):
         array_msg = PointCloudObstacleArray()
         array_msg.header = header
         array_msg.obstacles = obstacle_list
-        self._obstacle_pub.publish(array_msg)
+        self._obstacle_publisher.publish(array_msg)
 
         # Publicar Marcadores para RViz
-        self._marker_pub.publish(marker_array)
+        self._overlay_publisher.publish(marker_array)
 
         self.get_logger().info(
             f"Published {len(obstacle_list)} obstacles",
@@ -265,8 +266,8 @@ class LidarObstacleDetector(Node):
         )
 
     def _compute_cluster_properties(
-            self,
-            cluster: np.ndarray,
+        self,
+        cluster: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Calcula centroide y dimensiones (AABB) de un cluster."""
         centroid = np.mean(cluster, axis=0)
@@ -276,12 +277,12 @@ class LidarObstacleDetector(Node):
         return centroid, dimensions
 
     def _create_obstacle_message(
-            self,
-            obstacle_id: int,
-            centroid: np.ndarray,
-            dimensions: np.ndarray,
-            num_points: int,
-            header: Header,
+        self,
+        obstacle_id: int,
+        centroid: np.ndarray,
+        dimensions: np.ndarray,
+        num_points: int,
+        header: Header,
     ) -> PointCloudObstacle:
         """Instancia un mensaje PointCloudObstacle simple."""
         msg_out = PointCloudObstacle()
@@ -293,16 +294,19 @@ class LidarObstacleDetector(Node):
         # Evitamos dimensiones 0 para no romper visualizaciones
         msg_out.width = float(max(dimensions[0], self.MIN_DIMENSION))
         msg_out.depth = float(
-            max(dimensions[1], self.MIN_DIMENSION))  # Depth suele ser Y en coords locales de objeto o bounding box
+            max(dimensions[1], self.MIN_DIMENSION)
+        )  # Depth suele ser Y en coords locales de objeto o bounding box
         msg_out.height = float(max(dimensions[2], self.MIN_DIMENSION))
         msg_out.num_points = int(num_points)
         return msg_out
 
     def _create_visualization_marker(
-            self, obstacle_msg: PointCloudObstacle, obstacle_id: int
+        self, obstacle_msg: PointCloudObstacle, obstacle_id: int, header: Header = None
     ) -> Marker:
         """Crea un Marker cúbico para RViz basado en el obstáculo."""
         marker = Marker()
+        if header is not None:
+            marker.header = header
         marker.ns = "obstacles"
         marker.id = obstacle_id
         marker.type = Marker.CUBE

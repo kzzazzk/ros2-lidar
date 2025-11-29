@@ -32,7 +32,7 @@ class ObstacleFusion(Node):
     """
 
     DEFAULT_ASSOCIATION_DISTANCE = 1.2
-    DEFAULT_TIME_TOLERANCE = 0.1
+    DEFAULT_TIME_TOLERANCE = 0.5
     DEFAULT_MAX_HUNGARIAN_SIZE = 40
     DEFAULT_TRACK_MAX_AGE = 0.8
     DEFAULT_REID_DISTANCE = 0.6
@@ -51,11 +51,11 @@ class ObstacleFusion(Node):
         self._setup_publishers()
         self._setup_subscriptions()
 
-        # callback parámetros dinámicos
+        # Callback parámetros dinámicos
         self.add_on_set_parameters_callback(self._parameter_callback)
         self._create_synchronizer()
         
-        # tracker simple para mantener ids persistentes por corto tiempo
+        # Tracker simple para mantener ids persistentes por corto tiempo
         self._last_fused_id = 0
         self._tracks = dict()  # id -> {"centroid": np.array, "last_seen": float}
 
@@ -76,12 +76,12 @@ class ObstacleFusion(Node):
         self.reid_distance = (self.get_parameter("reid_distance").get_parameter_value().double_value)
 
     def _setup_publishers(self):
-        self._fused_pub = self.create_publisher(FusedObstacleArray, "/fused_obstacles", 10)
-        self._marker_pub = self.create_publisher(MarkerArray, "/fused_obstacle_markers", 10)
+        self._fused_publisher = self.create_publisher(FusedObstacleArray, "/fused/obstacles", 10)
+        self._marker_publisher = self.create_publisher(MarkerArray, "/fused/obstacles/overlay", 10)
 
     def _setup_subscriptions(self):
-        self._lidar_sub = Subscriber(self, PointCloudObstacleArray, "/lidar_obstacles")
-        self._image_sub = Subscriber(self, ImageObstacleArray, "/image_obstacles")
+        self._lidar_sub = Subscriber(self, PointCloudObstacleArray, "/lidar/obstacles")
+        self._image_sub = Subscriber(self, ImageObstacleArray, "/camera/obstacles")
 
     def _create_synchronizer(self):
         """
@@ -91,7 +91,7 @@ class ObstacleFusion(Node):
         # Si existía, no hay API directa para destruirlo, reasignamos y GC lo limpiará
         self._sync = ApproximateTimeSynchronizer(
             [self._lidar_sub, self._image_sub],
-            queue_size=20,
+            queue_size=50,
             slop=self.time_tolerance,
             allow_headerless=False,
         )
@@ -241,13 +241,13 @@ class ObstacleFusion(Node):
         out_msg = FusedObstacleArray()
         out_msg.header = header
         out_msg.obstacles = fused_list
-        self._fused_pub.publish(out_msg)
+        self._fused_publisher.publish(out_msg)
 
         # Markers
         marker_array = MarkerArray()
         for obs in fused_list:
             marker_array.markers.append(self._create_marker(obs, header))
-        self._marker_pub.publish(marker_array)
+        self._marker_publisher.publish(marker_array)
 
         self.get_logger().info(
             f"Published {len(fused_list)} fused obstacles "
@@ -382,8 +382,8 @@ class ObstacleFusion(Node):
     def _publish_empty_state(self, header: Header):
         msg = FusedObstacleArray()
         msg.header = header
-        self._fused_pub.publish(msg)
-        self._marker_pub.publish(MarkerArray())
+        self._fused_publisher.publish(msg)
+        self._marker_publisher.publish(MarkerArray())
 
     def _create_marker(self, obs: FusedObstacle, header: Header) -> Marker:
         marker = Marker()
