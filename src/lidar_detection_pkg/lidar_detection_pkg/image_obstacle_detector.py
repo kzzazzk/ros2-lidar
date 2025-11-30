@@ -19,7 +19,7 @@ class ImageObstacleDetector(Node):
     DEFAULT_CONFIDENCE: float = 0.5
     DEFAULT_MIN_AREA: int = 500
     DEFAULT_PUBLISH_OVERLAY: bool = True
-    DEFAULT_MODEL_PATH: str = "yolov8n.pt"
+    DEFAULT_MODEL_PATH: str = "src/yolov8n.pt"
     DEFAULT_FRAME_SKIP: int = 1
     DEFAULT_LOG_STATS_INTERVAL: int = 100
     YOLO_TARGET_SIZE: int = 640
