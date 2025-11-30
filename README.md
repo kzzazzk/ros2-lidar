@@ -262,7 +262,7 @@ ros2 bag play /ruta/a/tu/rosbag2_2025_02_27-13_08_14_0-001.db3
 
 #### Visualizar Detecciones LiDAR
 
-**a) Nube de puntos cruda (opcional)**
+**a) Nube de puntos cruda**
 
 | Configuración | Valor |
 |---------------|-------|
